@@ -14,6 +14,8 @@ const socialLinks = [
 ];
 
 export default function Home() {
+  const [tagline, punchline] = profile.tagline;
+
   return (
     <>
       <CustomNav />
@@ -31,7 +33,10 @@ export default function Home() {
               </span>
             </h1>
             <p className="color-custom-grey h5 font-weight-bold mb-4">{profile.role}</p>
-            <p className="hero-tagline">{profile.tagline}</p>
+            <p className="hero-tagline">
+              <span>{tagline}</span>{' '}
+              <span className="hero-tagline-punchline">{punchline}</span>
+            </p>
             <div className="d-flex my-4">
               {socialLinks.filter(link => link.href).map(link => (
                 <Button key={link.label} variant="" className="color-custom-blue p-0 mr-3 border-0" aria-label={link.label} href={link.href} target="_blank" rel="noopener noreferrer">

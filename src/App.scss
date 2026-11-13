@@ -91,7 +91,39 @@ $primaryColorLight: #8d81a5;
 }
 
 .hero-tagline {
+	color: #303b69;
 	font-size: 1.125rem;
+}
+
+.hero-tagline span {
+	display: inline-block;
+}
+
+.hero-tagline-punchline {
+	color: #11685e;
+	font-weight: 700;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.hero-tagline span {
+		animation: tagline-reveal 420ms ease-out both;
+	}
+
+	.hero-tagline .hero-tagline-punchline {
+		animation-delay: 280ms;
+	}
+}
+
+@keyframes tagline-reveal {
+	from {
+		opacity: 0;
+		transform: translateY(0.35em);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
 
 .hero-greeting {
