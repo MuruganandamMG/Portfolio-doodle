@@ -1,6 +1,7 @@
 export const profile = {
-  name: 'Your Name',
-  role: 'Developer',
+  name: 'Muruganandam',
+  role: "I'm an Applied AI Engineer",
+  tagline: 'I build with models, code, and a little chaos.',
   bio: '',
   resume: '',
   github: '',

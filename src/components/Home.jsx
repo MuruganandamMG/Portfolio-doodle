@@ -6,6 +6,7 @@ import DeveloperSvg from '../utils/developerSvg';
 import Particles from '../utils/particles';
 import { profile } from '../content';
 import About from './About';
+import TechText from './TechText';
 
 const socialLinks = [
   { label: 'GitHub', href: profile.github, icon: faGithubSquare },
@@ -19,9 +20,18 @@ export default function Home() {
       <Container className="h-100 home-container" role="main">
         <Row xs={1} md={2} className="h-100">
           <Col className="my-auto">
-            <h5 className="color-custom-grey font-weight-bold mb-0">Hey!</h5>
-            <h1 className="color-name-blue text-boldest">I'm {profile.name}</h1>
-            <p className="color-custom-grey h4">{profile.role}</p>
+            <p className="color-custom-grey font-weight-bold mb-0 hero-greeting">Hey!!</p>
+            <h1 className="color-name-blue hero-name">
+              <span className="hero-name-prefix">I'm</span>{' '}
+              <span className="hero-name-word">
+                <span className="hero-name-text">{profile.name}</span>
+                <span className="hero-name-motion" aria-hidden="true">
+                  <TechText text={profile.name} align="left" fontSize={72} fontWeight={800} letterSpacing={-0.035} />
+                </span>
+              </span>
+            </h1>
+            <p className="color-custom-grey h4 font-weight-bold mb-1">{profile.role}</p>
+            <p>{profile.tagline}</p>
             <div className="d-flex my-4">
               {socialLinks.filter(link => link.href).map(link => (
                 <Button key={link.label} variant="" className="color-custom-blue p-0 mr-3 border-0" aria-label={link.label} href={link.href} target="_blank" rel="noopener noreferrer">

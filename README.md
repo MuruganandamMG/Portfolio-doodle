@@ -32,3 +32,4 @@ Store public images and the public version of your résumé under `public/static
 ## Attribution
 
 The original MIT license and copyright notice are in `LICENSE`.
+The hero uses React Bits TechText by David Haz under the license in `public/licenses/react-bits.txt`.

@@ -1,43 +1,13 @@
 import { profile } from '../content';
-import { Navbar, Nav } from "react-bootstrap";
-import { NavLink, Link } from "react-router-dom";
+import { Navbar } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 
-const navItems = [{
-  label: "Home",
-  route: "/"
-}, {
-  label: "Skills",
-  route: "/skills"
-}, {
-  label: "Projects",
-  route: "/projects"
-}, {
-  label: "Contact",
-  route: "/contact"
-}]
-
-const CustomNav = () => {
+export default function CustomNav() {
   return (
-    <Navbar bg="" expand="md" className="nav-color nav-slide">
-      <Link className="text-decoration-none portfolio-signature" to="/">{`< ${profile.name} />`}</Link>
-      <Navbar.Toggle className="border-0" aria-controls="basic-navbar-nav" />
-      <Navbar.Collapse id="basic-navbar-nav" className="bg-white">
-        <Nav className="mx-auto">
-          {navItems.map(item =>
-            <NavLink
-              exact
-              key={item.label}
-              className="color-custom-blue w-100 text-decoration-none text-center nav-link mt-2"
-              activeClassName="font-weight-bold"
-              to={item.route}
-            >
-              {item.label}
-            </NavLink>
-          )}
-        </Nav>
-      </Navbar.Collapse>
+    <Navbar className="nav-color nav-slide">
+      <Link className="text-decoration-none portfolio-signature" to="/">
+        {`< ${profile.name} />`}
+      </Link>
     </Navbar>
-  )
-};
-
-export default CustomNav;
+  );
+}
