@@ -34,7 +34,7 @@ export default function Home() {
               </span>
             </h1>
             <p className="color-custom-grey h5 font-weight-bold mb-4">
-              <DecryptedText text={profile.role} animateOn="inViewHover" sequential speed={45} hoverRadius={48} scrambleColor="#11685e" encryptedClassName="role-encrypted" />
+              <DecryptedText text={profile.role} animateOn="inViewHover" sequential speed={45} hoverRadius={48} scrambleColor="#11685e" encryptedClassName="role-encrypted" loop loopDelay={4700} />
             </p>
             <p className="hero-tagline">
               <span>{tagline}</span>{' '}

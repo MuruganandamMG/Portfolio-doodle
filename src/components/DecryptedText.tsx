@@ -285,7 +285,8 @@ export default function DecryptedText({
     if (from) maskRef.current = from;
 
     if (prefersReducedMotion()) {
-      maskRef.current = chars.map(char => forward || isSpace(char));
+      maskRef.current = chars.map(() => true);
+      heatRef.current = [];
       paint();
       return;
     }
