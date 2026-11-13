@@ -82,6 +82,9 @@ export default function SkillsGraph({ hero }) {
         }
       }}
     >
+      <div className="skills-graph-handoff" aria-hidden="true">
+        <span />
+      </div>
       <div className="skills-graph-field">
         {['desktop', 'mobile'].map(layout => (
           <svg
@@ -104,7 +107,6 @@ export default function SkillsGraph({ hero }) {
                   x2={mobile ? b.mx : b.x}
                   y2={mobile ? b.my : b.y}
                   pathLength="1"
-                  vectorEffect="non-scaling-stroke"
                   data-connected={from === active || to === active}
                   style={{ '--edge-delay': (index % 6) * 0.045 }}
                 />
