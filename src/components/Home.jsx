@@ -7,6 +7,7 @@ import Particles from '../utils/particles';
 import { profile } from '../content';
 import About from './About';
 import TechText from './TechText';
+import DecryptedText from './DecryptedText';
 
 const socialLinks = [
   { label: 'GitHub', href: profile.github, icon: faGithubSquare },
@@ -32,7 +33,9 @@ export default function Home() {
                 </span>
               </span>
             </h1>
-            <p className="color-custom-grey h5 font-weight-bold mb-4">{profile.role}</p>
+            <p className="color-custom-grey h5 font-weight-bold mb-4">
+              <DecryptedText text={profile.role} animateOn="inViewHover" sequential speed={45} hoverRadius={48} scrambleColor="#11685e" encryptedClassName="role-encrypted" />
+            </p>
             <p className="hero-tagline">
               <span>{tagline}</span>{' '}
               <span className="hero-tagline-punchline">{punchline}</span>
