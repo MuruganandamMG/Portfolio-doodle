@@ -12,9 +12,6 @@ import {
   type MouseEvent as ReactMouseEvent
 } from 'react';
 
-const FADE_FLOOR = 0.16;
-const FADE_PEAK = 0.62;
-const FADE_LEAD = 6;
 const SETTLE = 'color 0.7s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1)';
 
 interface DecryptedTextProps extends ComponentPropsWithoutRef<'span'> {
@@ -28,9 +25,7 @@ interface DecryptedTextProps extends ComponentPropsWithoutRef<'span'> {
   className?: string;
   parentClassName?: string;
   encryptedClassName?: string;
-  animateOn?: 'view' | 'hover' | 'inViewHover' | 'click';
-  clickMode?: 'once' | 'toggle';
-  effect?: 'scramble' | 'flip' | 'fade';
+  animateOn?: 'view' | 'hover' | 'inViewHover';
   scrambleColor?: string;
   loop?: boolean;
   loopDelay?: number;
@@ -41,7 +36,6 @@ interface Frame {
   shown: string[];
   revealed: boolean[];
   tint: number[];
-  dim: number[];
   squeeze: number[];
 }
 
@@ -111,11 +105,6 @@ const advance = (font: string, glyph: string): number => {
   return width;
 };
 
-const flipFrames = (angle: number, opacity: number): Keyframe[] => [
-  { transform: `perspective(4em) translateZ(-0.42em) rotateX(${angle}deg) translateZ(0.42em)`, opacity },
-  { transform: 'perspective(4em) translateZ(-0.42em) rotateX(0deg) translateZ(0.42em)', opacity: 1 }
-];
-
 export default function DecryptedText({
   text,
   speed = 50,
@@ -128,8 +117,6 @@ export default function DecryptedText({
   parentClassName = '',
   encryptedClassName = '',
   animateOn = 'hover',
-  clickMode = 'once',
-  effect = 'scramble',
   scrambleColor = '',
   loop = false,
   loopDelay = 2000,
@@ -144,7 +131,7 @@ export default function DecryptedText({
     return source.length ? source : letters;
   }, [useOriginalCharsOnly, chars, characters]);
 
-  const startsHidden = animateOn === 'click' || animateOn === 'view' || animateOn === 'inViewHover';
+  const startsHidden = animateOn === 'view' || animateOn === 'inViewHover';
   const hoverable = animateOn === 'hover' || animateOn === 'inViewHover';
   const local = hoverable && hoverRadius > 0;
   const step = Math.max(16, speed);
@@ -157,7 +144,6 @@ export default function DecryptedText({
       ),
       revealed,
       tint: revealed.map(shown => (shown ? 0 : 1)),
-      dim: revealed.map(shown => (shown ? 1 : FADE_FLOOR)),
       squeeze: revealed.map(() => 1)
     };
   });
@@ -174,9 +160,7 @@ export default function DecryptedText({
   const holdRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const pendingRef = useRef<(() => void) | null>(null);
   const visibleRef = useRef(true);
-  const targetRef = useRef(!startsHidden);
   const playedRef = useRef(false);
-  const previousRef = useRef<Frame>(frame);
   const engineRef = useRef<Engine | null>(null);
   const fontRef = useRef<FontMetrics | null>(null);
 
@@ -212,10 +196,7 @@ export default function DecryptedText({
   const paint = () => {
     const mask = maskRef.current;
     const heat = heatRef.current;
-    const run = runRef.current;
-    const ranks = run?.forward && sequential ? new Map(run.queue.map((index, rank) => [index, rank])) : null;
-    const ramp = run?.forward && !sequential ? Math.min(1, run.iteration / Math.max(1, maxIterations)) : 0;
-    const next: Frame = { shown: [], revealed: [], tint: [], dim: [], squeeze: [] };
+    const next: Frame = { shown: [], revealed: [], tint: [], squeeze: [] };
 
     chars.forEach((char, index) => {
       const blank = isSpace(char);
@@ -230,16 +211,11 @@ export default function DecryptedText({
 
       if (!scrambled) {
         next.tint.push(0);
-        next.dim.push(1);
       } else if (!hidden) {
         const level = Math.min(1, hot * 1.5);
         next.tint.push(level);
-        next.dim.push(1 - (1 - FADE_FLOOR) * level);
       } else {
-        const rank = ranks?.get(index);
-        const lift = rank === undefined ? ramp : Math.max(0, 1 - rank / FADE_LEAD);
         next.tint.push(1);
-        next.dim.push(FADE_FLOOR + (FADE_PEAK - FADE_FLOOR) * lift);
       }
     });
 
@@ -281,7 +257,6 @@ export default function DecryptedText({
 
   const startRun = (forward: boolean, { from, cycle = false, lead = 0 }: RunOptions = {}) => {
     stopRun();
-    targetRef.current = forward;
     if (from) maskRef.current = from;
 
     if (prefersReducedMotion()) {
@@ -409,8 +384,7 @@ export default function DecryptedText({
     engine.stopRun();
     playedRef.current = false;
     const hidden =
-      animateOn === 'click' || ((animateOn === 'view' || animateOn === 'inViewHover') && !prefersReducedMotion());
-    targetRef.current = !hidden;
+      ((animateOn === 'view' || animateOn === 'inViewHover') && !prefersReducedMotion());
     maskRef.current = chars.map(char => !hidden || isSpace(char));
     heatRef.current = chars.map(() => 0);
     pointerRef.current = null;
@@ -480,27 +454,6 @@ export default function DecryptedText({
     };
   }, [animateOn, loop, chars]);
 
-  useIsomorphicLayoutEffect(() => {
-    const previous = previousRef.current;
-    previousRef.current = frame;
-    if (effect !== 'flip' || previous.shown === frame.shown || prefersReducedMotion()) return;
-    frame.revealed.forEach((revealed, index) => {
-      const node = cellsRef.current[index];
-      if (!node || typeof node.animate !== 'function' || isSpace(chars[index] ?? ' ')) return;
-      if (!revealed) {
-        node.animate(flipFrames(58 + Math.random() * 26, 0.3), {
-          duration: Math.min(step * 0.92, 240),
-          easing: 'cubic-bezier(0.3, 0.7, 0.4, 1)'
-        });
-      } else if (previous.revealed[index] === false) {
-        node.animate(flipFrames(90, 0), {
-          duration: Math.min(Math.max(step * 7, 360), 760),
-          easing: 'cubic-bezier(0.34, 1.45, 0.64, 1)'
-        });
-      }
-    });
-  }, [frame, effect, chars, step]);
-
   const trackPointer = (event: ReactMouseEvent<HTMLSpanElement>) => {
     if (prefersReducedMotion()) return;
     if (!pointerRef.current) measure();
@@ -527,20 +480,11 @@ export default function DecryptedText({
       return;
     }
     stopRun();
-    targetRef.current = true;
     maskRef.current = chars.map(() => true);
     paint();
     if (loop && animateOn === 'inViewHover') {
       schedule(() => engineRef.current?.startRun(false, { cycle: true }), Math.max(0, loopDelay));
     }
-  };
-
-  const handleClick = () => {
-    if (clickMode === 'toggle') {
-      startRun(!targetRef.current);
-      return;
-    }
-    if (!targetRef.current) startRun(true);
   };
 
   const groups = useMemo(() => {
@@ -562,9 +506,6 @@ export default function DecryptedText({
   }, [chars]);
 
   const tinted = Boolean(scrambleColor);
-  const fading = effect === 'fade';
-  const flipping = effect === 'flip';
-  const settles = tinted || fading;
 
   const glyphStyle = (index: number): CSSProperties | undefined => {
     const squeeze = frame.squeeze[index] ?? 1;
@@ -572,26 +513,23 @@ export default function DecryptedText({
   };
 
   const cellClass = (revealed: boolean) =>
-    [revealed && !flipping ? '' : 'position-relative d-inline-block', revealed ? className : encryptedClassName]
+    [revealed ? '' : 'position-relative d-inline-block', revealed ? className : encryptedClassName]
       .filter(Boolean)
       .join(' ');
 
   const cellStyle = (index: number, revealed: boolean): CSSProperties => {
     const style: CSSProperties = {};
-    if (settles) style.transition = revealed ? SETTLE : `color 0.12s linear, opacity ${step}ms linear`;
+    if (tinted) style.transition = revealed ? SETTLE : `color 0.12s linear, opacity ${step}ms linear`;
     if (tinted && !revealed) {
       const amount = Math.round((frame.tint[index] ?? 1) * 100);
       style.color = amount >= 100 ? scrambleColor : `color-mix(in srgb, ${scrambleColor} ${amount}%, currentColor)`;
     }
-    if (fading) style.opacity = revealed ? 1 : (frame.dim[index] ?? FADE_FLOOR);
     return style;
   };
 
   const animateProps = hoverable
     ? { onMouseEnter: handleMouseEnter, onMouseMove: handleMouseMove, onMouseLeave: handleMouseLeave }
-    : animateOn === 'click'
-      ? { onClick: handleClick }
-      : {};
+    : {};
 
   return (
     <span
