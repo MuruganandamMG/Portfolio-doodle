@@ -30,7 +30,7 @@ export default function Home() {
                 </span>
               </span>
             </h1>
-            <p className="color-custom-grey h4 font-weight-bold mb-1">{profile.role}</p>
+            <p className="color-custom-grey h4 font-weight-bold mb-3">{profile.role}</p>
             <p>{profile.tagline}</p>
             <div className="d-flex my-4">
               {socialLinks.filter(link => link.href).map(link => (
